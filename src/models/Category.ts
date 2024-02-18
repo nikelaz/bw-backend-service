@@ -10,8 +10,8 @@ import {
 } from 'typeorm';
 import { validateOrReject, IsDecimal, Length, IsEnum } from 'class-validator';
 import { getIsInvalidMessage } from '../helper/validation-messages';
-import { User } from './User';
-import { CategoryBudget } from './CategoryBudget';
+import { User } from './user';
+import { CategoryBudget } from './category-budget';
 
 export enum CategoryType {
   INCOME = 0,

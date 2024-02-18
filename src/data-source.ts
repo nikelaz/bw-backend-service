@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { User } from './models/User';
-import { Transaction } from './models/Transaction';
-import { Budget } from './models/Budget';
-import { CategoryBudget } from './models/CategoryBudget';
-import { Category } from './models/Category';
+import { User } from './models/user';
+import { Transaction } from './models/transaction';
+import { Budget } from './models/budget';
+import { CategoryBudget } from './models/category-budget';
+import { Category } from './models/category';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',

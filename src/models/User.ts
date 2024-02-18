@@ -12,7 +12,7 @@ import {
 import { validateOrReject, IsEmail, Matches, Length, IsOptional } from 'class-validator';
 import { getIsInvalidMessage } from '../helper/validation-messages';
 import * as bcrypt from 'bcrypt';
-import { Category } from './Category';
+import { Category } from './category';
 
 @Entity()
 @Unique(['email'])

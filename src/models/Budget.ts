@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { validateOrReject, IsDate } from 'class-validator';
 import { getIsInvalidMessage } from '../helper/validation-messages';
-import { CategoryBudget } from './CategoryBudget';
+import { CategoryBudget } from './category-budget';
 
 @Entity()
 export class Budget extends BaseEntity {

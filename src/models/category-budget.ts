@@ -10,9 +10,9 @@ import {
 } from 'typeorm';
 import { validateOrReject, IsDecimal } from 'class-validator';
 import { getIsInvalidMessage } from '../helper/validation-messages';
-import { Category } from './Category';
-import { Budget } from './Budget';
-import { Transaction } from './Transaction';
+import { Category } from './category';
+import { Budget } from './budget';
+import { Transaction } from './transaction';
 
 @Entity()
 export class CategoryBudget extends BaseEntity {
