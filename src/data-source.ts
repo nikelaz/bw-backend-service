@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { User } from './models/user';
 import { Transaction } from './models/transaction';
