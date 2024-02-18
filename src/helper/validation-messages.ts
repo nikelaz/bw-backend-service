@@ -1,1 +1,1 @@
-export const getIsInvalidMessage = (fieldLabel: string): string => `${fieldLabel} is invalid`;
+export const getIsInvalidMessage = (fieldLabel: string) => `${fieldLabel} is invalid`;
