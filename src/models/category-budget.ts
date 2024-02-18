@@ -2,41 +2,31 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  BaseEntity,
-  BeforeInsert,
-  BeforeUpdate,
   ManyToOne,
   OneToMany
 } from 'typeorm';
-import { validateOrReject, IsDecimal } from 'class-validator';
-import { getIsInvalidMessage } from '../helper/validation-messages';
+import ExtendedBaseEntity from './extended-base-entity';
+import { IsDecimal } from 'class-validator';
+import { getIsInvalidMessage } from '../helpers/validation-messages';
 import { Category } from './category';
 import { Budget } from './budget';
 import { Transaction } from './transaction';
 
 @Entity()
-export class CategoryBudget extends BaseEntity {
+export class CategoryBudget extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @IsDecimal(undefined, {
-    message: getIsInvalidMessage('Month')
-  })
+  @IsDecimal(undefined, { message: getIsInvalidMessage('Month') })
   amount: number;
 
   @ManyToOne(() => Category, (category) => category.categoryBudgets)
-  category: Category
+  category: Category;
 
   @ManyToOne(() => Budget, (budget) => budget.categoryBudgets)
-  budget: Budget
+  budget: Budget;
 
   @OneToMany(() => Transaction, (transaction) => transaction.categoryBudget)
-  transactions: Transaction[]
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async validate() {
-    await validateOrReject(this);
-  }
+  transactions: Transaction[];
 }

@@ -1,33 +1,18 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  BaseEntity,
-  BeforeInsert,
-  BeforeUpdate,
-  OneToMany
-} from 'typeorm';
-import { validateOrReject, IsDate } from 'class-validator';
-import { getIsInvalidMessage } from '../helper/validation-messages';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import ExtendedBaseEntity from './extended-base-entity';
+import { IsDate } from 'class-validator';
+import { getIsInvalidMessage } from '../helpers/validation-messages';
 import { CategoryBudget } from './category-budget';
 
 @Entity()
-export class Budget extends BaseEntity {
+export class Budget extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @IsDate({
-    message: getIsInvalidMessage('Month')
-  })
+  @IsDate({ message: getIsInvalidMessage('Month') })
   month: Date;
 
   @OneToMany(() => CategoryBudget, (categoryBudget) => categoryBudget.budget)
-  categoryBudgets: CategoryBudget[]
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async validate() {
-    await validateOrReject(this);
-  }
+  categoryBudgets: CategoryBudget[];
 }
