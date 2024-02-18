@@ -6,5 +6,6 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bw
     ports:
       - 5433:5432
