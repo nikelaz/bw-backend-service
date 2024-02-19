@@ -3,6 +3,7 @@ import ExtendedBaseEntity from './extended-base-entity';
 import { IsDate } from 'class-validator';
 import { getIsInvalidMessage } from '../helpers/validation-messages';
 import { CategoryBudget } from './category-budget';
+import { User } from './user';
 
 @Entity()
 export class Transaction extends ExtendedBaseEntity {
@@ -18,4 +19,7 @@ export class Transaction extends ExtendedBaseEntity {
 
   @ManyToOne(() => CategoryBudget, (categoryBudget) => categoryBudget.transactions)
   categoryBudget: CategoryBudget;
+
+  @ManyToOne(() => User, (user) => user.transactions)
+  user: User;
 }
