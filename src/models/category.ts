@@ -6,7 +6,7 @@ import {
   OneToMany
 } from 'typeorm';
 import ExtendedBaseEntity from './extended-base-entity';
-import { IsDecimal, Length, IsEnum } from 'class-validator';
+import { IsDecimal, Length, IsEnum, IsOptional } from 'class-validator';
 import { getIsInvalidMessage } from '../helpers/validation-messages';
 import { User } from './user';
 import { CategoryBudget } from './category-budget';
@@ -34,8 +34,9 @@ export class Category extends ExtendedBaseEntity {
   @Length(1, 50, { message: getIsInvalidMessage('Title') })
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsDecimal(undefined, { message: getIsInvalidMessage('Accumulated Amount') })
+  @IsOptional()
   accAmount: number;
 
   @ManyToOne(() => User, (user) => user.categories)

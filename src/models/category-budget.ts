@@ -3,7 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany
+  OneToMany,
+  AfterLoad,
+  AfterInsert,
+  AfterUpdate
 } from 'typeorm';
 import ExtendedBaseEntity from './extended-base-entity';
 import { IsDecimal } from 'class-validator';
@@ -18,7 +21,6 @@ export class CategoryBudget extends ExtendedBaseEntity {
   id: number;
 
   @Column()
-  @IsDecimal(undefined, { message: getIsInvalidMessage('Month') })
   amount: number;
 
   @ManyToOne(() => Category, (category) => category.categoryBudgets)
@@ -27,6 +29,18 @@ export class CategoryBudget extends ExtendedBaseEntity {
   @ManyToOne(() => Budget, (budget) => budget.categoryBudgets)
   budget: Budget;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.categoryBudget)
+  @OneToMany(() => Transaction, (transaction) => transaction.categoryBudget, {
+    eager: true
+  })
   transactions: Transaction[];
+
+  currentAmount: number;
+
+  @AfterLoad()
+  @AfterInsert()
+  @AfterUpdate()
+  generateCurrentAmount(): void {
+    if (!this.transactions) return;
+    this.currentAmount = this.transactions.reduce((acc, currValue) => acc + currValue.amount, 0);
+  }
 }
