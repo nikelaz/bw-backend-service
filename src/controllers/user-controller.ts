@@ -4,12 +4,16 @@ import { IIdParams, ISuccessfulReply } from './types/generic.types';
 import { IUserBody, IUserReply, ITokenReply } from './types/user.types';
 import { idParamsSchema, successfulResponseSchema } from './schemas/generic.schemas';
 import { userBodySchema, userResponseSchema, tokenResponseSchema } from './schemas/user.schemas';
+import { auth } from '../helpers/authenticated';
 
 export const userController: FastifyPluginCallback = (server, undefined, done) => {
   server.get<{
     Params: IIdParams,
     Reply: IUserReply
-  }>('/:id', { schema: { ...idParamsSchema, ...userResponseSchema } }, async (req, reply) => {
+  }>('/:id', {
+    schema: { ...idParamsSchema, ...userResponseSchema },
+    ...auth(server)
+  }, async (req, reply) => {
     const user = await User.findOneBy({ id: req.params.id });
     if (!user) throw new Error('User not found');
     reply.code(200).send({ user });
@@ -43,7 +47,10 @@ export const userController: FastifyPluginCallback = (server, undefined, done) =
   server.put<{
     Body: IUserBody,
     Reply: ISuccessfulReply
-  }>('/', { schema: { ...userBodySchema, ...successfulResponseSchema } }, async (req, reply) => {
+  }>('/', {
+    schema: { ...userBodySchema, ...successfulResponseSchema },
+    ...auth(server)
+  }, async (req, reply) => {
     await User.update(req.body.user.id, req.body.user);
     reply.code(200).send({ message: 'User updated succesfully' });
   });
@@ -51,7 +58,10 @@ export const userController: FastifyPluginCallback = (server, undefined, done) =
   server.delete<{
     Params: IIdParams,
     Reply: ISuccessfulReply
-  }>('/:id', { schema: { ...idParamsSchema, ...successfulResponseSchema } }, async (req, reply) => {
+  }>('/:id', {
+    schema: { ...idParamsSchema, ...successfulResponseSchema },
+    ...auth(server)
+  }, async (req, reply) => {
     await User.delete(req.params.id);
     reply.code(200).send({ message: 'User deleted succesfully' });
   });
