@@ -10,7 +10,7 @@ export class Transaction extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column('double precision')
   amount: number;
 
   @Column()

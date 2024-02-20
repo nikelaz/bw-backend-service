@@ -9,6 +9,15 @@ declare module 'fastify' {
   }
 };
 
+declare module '@fastify/jwt' {
+  interface FastifyJWT {
+    user: {
+      id: number
+    };
+  }
+}
+
+
 const authPlugin: FastifyPluginCallback = (server, undefined, done) => {
   server.register(fastifyJwt, { secret: config.jwt.secret });
 

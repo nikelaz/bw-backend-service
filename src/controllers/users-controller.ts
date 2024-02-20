@@ -6,7 +6,7 @@ import { idParamsSchema, successfulResponseSchema } from './schemas/generic.sche
 import { userBodySchema, userResponseSchema, tokenResponseSchema } from './schemas/user.schemas';
 import { auth } from '../helpers/authenticated';
 
-export const userController: FastifyPluginCallback = (server, undefined, done) => {
+export const usersController: FastifyPluginCallback = (server, undefined, done) => {
   server.get<{
     Params: IIdParams,
     Reply: IUserReply
@@ -40,7 +40,7 @@ export const userController: FastifyPluginCallback = (server, undefined, done) =
     const isPasswordValid = user.isPasswordValid(req.body.user.password);
     if (!isPasswordValid) throw new Error(invalidCredentialsError);
 
-    const token = server.jwt.sign({ user });
+    const token = server.jwt.sign({ ...user });
     reply.code(200).send({ token });
   });
 

@@ -6,7 +6,7 @@ import {
   OneToMany,
   AfterLoad,
   AfterInsert,
-  AfterUpdate
+  AfterUpdate,
 } from 'typeorm';
 import ExtendedBaseEntity from './extended-base-entity';
 import { Category } from './category';
@@ -18,7 +18,7 @@ export class CategoryBudget extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column('double precision')
   amount: number;
 
   @ManyToOne(() => Category, (category) => category.categoryBudgets)

@@ -2,8 +2,11 @@ import 'reflect-metadata';
 import { AppDataSource } from './data-source';
 import fastify, { FastifyInstance } from 'fastify';
 import config from './config';
-import { userController } from './controllers/user-controller';
 import auth from './plugins/auth';
+import { usersController } from './controllers/users-controller';
+import { budgetsController } from './controllers/budgets-controller';
+import { transactionsController } from './controllers/transactions-controller';
+import { categoryBudgetsController } from './controllers/category-budgets-controller';
 
 class Application {
   server: FastifyInstance;
@@ -27,7 +30,10 @@ class Application {
   }
 
   registerControllers() {
-    this.server.register(userController, { prefix: `${config.apiPrefix}/users` });
+    this.server.register(usersController, { prefix: `${config.apiPrefix}/users` });
+    this.server.register(budgetsController, { prefix: `${config.apiPrefix}/budgets` });
+    this.server.register(transactionsController, { prefix: `${config.apiPrefix}/transactions` });
+    this.server.register(categoryBudgetsController, { prefix: `${config.apiPrefix}/category-budgets` });
   }
 
   async main() {
