@@ -1,4 +1,5 @@
 export default {
+  host: '0.0.0.0',
   port: parseInt(process.env.PORT),
   apiPrefix: '/api/v1',
   jwt: {

@@ -17,7 +17,10 @@ class Application {
 
   async startHttpServer() {
     try {
-      const address = await this.server.listen({ port: config.port});
+      const address = await this.server.listen({
+        host: config.host,
+        port: config.port
+      });
       console.log(`Server listening at ${address}`);
     } catch (error) {
       console.error(error);
