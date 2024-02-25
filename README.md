@@ -8,13 +8,14 @@ This is the backend api provider application for the Budget Warden project (a pe
 
 ### YouTube Series
 
-1. [**Software and DB Architecture**](https://youtu.be/Z3OEsK2fUl8)
+1. [**Software Architecture**](https://youtu.be/Z3OEsK2fUl8)
 2. [**UI/UX Design**](https://youtu.be/D_TpsGgVdwY)
-3. [**Model Definition and Validation with TypeORM and PostgreSQL**](https://youtu.be/BxH9NYMuTrU)
+3. [**TypeORM Models and Validation**](https://youtu.be/BxH9NYMuTrU)
+4. [**Fastify User Authentication with JWT**](https://youtu.be/vVF8Szpx8Ho)
 
 ## Dependencies
 
-This service is dependent on a PostgreSQL database. At this stage there is a `docker-compose.yml` file in the root directory. You can use it to run the database container for development. This file will be moved to a different repository later.
+This is a Node.js application (Next.js). The recommended Node.js version to run it is `20.11.1 LTS`.
 
 ## Installation
 
