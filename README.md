@@ -1,4 +1,4 @@
-<img src="https://i.imgur.com/YzRfWEZ.png" alt="budget warden logo" width="320" height="81" style="margin-bottom: 10px;"/>
+<img src="https://i.imgur.com/lX2NzV2.png" alt="budget warden logo" width="320" height="81" style="margin-bottom: 10px;"/>
 
 # Budget Warden Backend Service
 
