@@ -1,0 +1,20 @@
+###### Gated for Authenticated Users
+
+# Users GET /:id
+
+## Request Parameters
+
+| Parameter | Description | Required? |
+|-|-|-|
+| id | The unique id of the user | `true` |
+
+## Response Body
+
+| Key | Type |
+|-|-|
+| user | User |
+| user.id | number |
+| user.email | string |
+| user.firstName | string |
+| user.lastName | string |
+| user.currency | string |
