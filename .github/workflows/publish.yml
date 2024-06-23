@@ -30,6 +30,8 @@ jobs:
           static_site_generator: next
 
       - name: Build with Next.js
+        run: cd ./docs
+        run: npm ci
         run: npm run build
 
       - name: Upload artifact 📡
