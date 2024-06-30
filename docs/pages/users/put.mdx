@@ -1,0 +1,20 @@
+###### Gated for Authenticated Users
+
+# Users PUT /
+
+## Request Body
+
+| Key | Type | Required? |
+|-|-|-|
+| user | User | `true` |
+| user.id | number | `true` |
+| user.email | string | `true` |
+| user.firstName | string | `true` |
+| user.lastName | string | `true` |
+| user.currency | string | `true` |
+
+## Response Body
+
+| Key | Type |
+|-|-|
+| message | string |

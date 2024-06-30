@@ -1,0 +1,4 @@
+{
+  "get-id": "GET /:id",
+  "post": "POST /"
+}

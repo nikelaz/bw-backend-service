@@ -1,5 +1,6 @@
 {
   "index": "Introduction",
   "users": "Users",
-  "users_get_id": "GET /:id"
+  "budgets": "Budgets",
+  "category-budgets": "CategoryBudgets"
 }

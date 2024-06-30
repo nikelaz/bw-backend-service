@@ -1,0 +1,27 @@
+###### Gated for Authenticated Users
+
+# Budgets GET /:id
+
+## Request Parameters
+
+| Parameter | Description | Required? |
+|-|-|-|
+| id | The unique id of the budget | `true` |
+
+## Response Body
+
+| Key | Type |
+|-|-|
+| budget | Budget |
+| budget.id | number |
+| budget.month | date |
+| budget.categoryBudgets | Array&lt;CategoryBudget&gt; |
+| budget.categoryBudgets[n].id | number |
+| budget.categoryBudgets[n].amount | number |
+| budget.categoryBudgets[n].transactions | Array&lt;Transaction&gt; |
+| budget.categoryBudgets[n].currentAmount | number |
+| budget.categoryBudgets[n].category | Category |
+| budget.categoryBudgets[n].category.id | number |
+| budget.categoryBudgets[n].category.type | number |
+| budget.categoryBudgets[n].category.title | string |
+| budget.categoryBudgets[n].category.accAmount | number |

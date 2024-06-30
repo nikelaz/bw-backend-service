@@ -1,0 +1,7 @@
+{
+  "get-id": "GET /:id",
+  "post": "POST /",
+  "post-login": "POST /login",
+  "put": "PUT /",
+  "delete": "DELETE /:id"
+}

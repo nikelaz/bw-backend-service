@@ -1,0 +1,6 @@
+{
+  "get": "GET /",
+  "get-id": "GET /:id",
+  "post": "POST /",
+  "delete": "DELETE /"
+}
