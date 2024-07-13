@@ -8,6 +8,7 @@ import { budgetsController } from './controllers/budgets-controller';
 import { transactionsController } from './controllers/transactions-controller';
 import { categoryBudgetsController } from './controllers/category-budgets-controller';
 import { seedData } from './seed-data';
+import cors from '@fastify/cors';
 
 class Application {
   server: FastifyInstance;
@@ -30,6 +31,9 @@ class Application {
   }
 
   registerPlugins() {
+    this.server.register(cors, {
+      origin: true,
+    });
     this.server.register(auth);
   }
 

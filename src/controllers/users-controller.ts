@@ -37,7 +37,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     const user = await User.findOneBy({ email: req.body.user.email });
     if (!user) throw new Error(invalidCredentialsError);
 
-    const isPasswordValid = user.isPasswordValid(req.body.user.password);
+    const isPasswordValid = await user.isPasswordValid(req.body.user.password);
     if (!isPasswordValid) throw new Error(invalidCredentialsError);
 
     const token = server.jwt.sign({ ...user });

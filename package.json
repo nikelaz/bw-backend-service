@@ -18,6 +18,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@fastify/cors": "^9.0.1",
     "@fastify/jwt": "^8.0.0",
     "bcrypt": "^5.1.1",
     "class-validator": "^0.14.1",
