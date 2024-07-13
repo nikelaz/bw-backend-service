@@ -7,6 +7,7 @@ import { usersController } from './controllers/users-controller';
 import { budgetsController } from './controllers/budgets-controller';
 import { transactionsController } from './controllers/transactions-controller';
 import { categoryBudgetsController } from './controllers/category-budgets-controller';
+import { seedData } from './seed-data';
 
 class Application {
   server: FastifyInstance;
@@ -44,6 +45,7 @@ class Application {
     this.registerPlugins();
     this.registerControllers();
     await this.startHttpServer();
+    await seedData();
   }
 }
 
