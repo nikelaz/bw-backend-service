@@ -41,7 +41,14 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     if (!isPasswordValid) throw new Error(invalidCredentialsError);
 
     const token = server.jwt.sign({ ...user });
-    reply.code(200).send({ token });
+    reply.code(200).send({
+      token,
+      user: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName
+      }
+    });
   });
 
   server.put<{

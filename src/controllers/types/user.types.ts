@@ -10,4 +10,5 @@ export interface IUserReply {
 
 export interface ITokenReply {
   token: string;
+  user: Partial<User>;
 };

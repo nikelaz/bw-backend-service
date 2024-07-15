@@ -46,7 +46,13 @@ export const tokenResponseSchema: FastifySchema = {
       type: 'object',
       required: ['token'],
       properties: {
-        token: { type: 'string' }
+        token: { type: 'string' },
+        user: {
+          type: 'object',
+          properties: {
+            ...userBaseProps,
+          }
+        },
       }
     }
   }
