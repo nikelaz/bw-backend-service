@@ -1,9 +1,9 @@
 import { FastifyPluginCallback } from 'fastify';
 import { User } from '../models/user';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
-import { IUserBody, IUserReply, ITokenReply } from './types/user.types';
+import { IUserBody, IUserReply, ILoginReply } from './types/user.types';
 import { idParamsSchema, successfulResponseSchema } from './schemas/generic.schemas';
-import { userBodySchema, userResponseSchema, tokenResponseSchema } from './schemas/user.schemas';
+import { userBodySchema, userResponseSchema, loginResponseSchema } from './schemas/user.schemas';
 import { auth } from '../helpers/authenticated';
 
 export const usersController: FastifyPluginCallback = (server, undefined, done) => {
@@ -30,8 +30,8 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
 
   server.post<{
     Body: IUserBody,
-    Reply: ITokenReply
-  }>('/login', { schema: { ...userBodySchema, ...tokenResponseSchema } }, async (req, reply) => {
+    Reply: ILoginReply
+  }>('/login', { schema: { ...userBodySchema, ...loginResponseSchema } }, async (req, reply) => {
     const invalidCredentialsError = 'The provided user details are invalid';
 
     const user = await User.findOneBy({ email: req.body.user.email });

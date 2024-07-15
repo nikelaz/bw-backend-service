@@ -8,7 +8,7 @@ export interface IUserReply {
   user: Partial<User>;
 };
 
-export interface ITokenReply {
+export interface ILoginReply {
   token: string;
   user: Partial<User>;
 };

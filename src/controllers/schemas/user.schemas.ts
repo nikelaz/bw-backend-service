@@ -40,7 +40,7 @@ export const userBodySchema: FastifySchema = {
   }
 };
 
-export const tokenResponseSchema: FastifySchema = {
+export const loginResponseSchema: FastifySchema = {
   response: {
     200: {
       type: 'object',
