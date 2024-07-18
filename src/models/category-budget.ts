@@ -21,7 +21,9 @@ export class CategoryBudget extends ExtendedBaseEntity {
   @Column('double precision')
   amount: number;
 
-  @ManyToOne(() => Category, (category) => category.categoryBudgets)
+  @ManyToOne(() => Category, (category) => category.categoryBudgets, {
+    eager: true
+  })
   category: Category;
 
   @ManyToOne(() => Budget, (budget) => budget.categoryBudgets)
