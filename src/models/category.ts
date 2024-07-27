@@ -35,7 +35,6 @@ export class Category extends ExtendedBaseEntity {
   title: string;
 
   @Column('double precision', { nullable: true })
-  @IsDecimal(undefined, { message: getIsInvalidMessage('Accumulated Amount') })
   @IsOptional()
   accAmount: number;
 
