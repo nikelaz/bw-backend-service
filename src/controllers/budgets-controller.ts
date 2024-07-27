@@ -14,7 +14,10 @@ export const budgetsController: FastifyPluginCallback = (server, undefined, done
       where: {
         user: { id: req.user.id }
       },
-      relations: ['categoryBudgets']
+      relations: ['categoryBudgets'],
+      order: {
+        month: 'ASC'
+      }
     });
     reply.code(200).send({ budgets });
   });

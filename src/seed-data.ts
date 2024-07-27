@@ -12,10 +12,15 @@ const createCategory = async (type: CategoryType, title: string, userId: number)
     title,
     user: {
       id: userId
-    }
+    },
+    accAmount: 0
   });
 
-  await category.save();
+  try {
+    await category.save();
+  } catch (error) {
+    console.log('error', error.toString());
+  }
 
   return category;
 };
@@ -78,6 +83,30 @@ export const seedData = async () => {
 
   await budget.save();
 
+  const aMonthAgo = new Date();
+  aMonthAgo.setMonth(aMonthAgo.getMonth() - 1);
+
+  const budget2 = Budget.create({
+    month: aMonthAgo,
+    user: {
+      id: user.id
+    }
+  });
+
+  await budget2.save();
+
+  const aMonthForward = new Date();
+  aMonthForward.setMonth(aMonthForward.getMonth() + 1);
+
+  const budget3 = Budget.create({
+    month: aMonthForward,
+    user: {
+      id: user.id
+    }
+  });
+
+  await budget3.save();
+
   console.log(consolePrefix, 'Creating categories');
 
   const salaryCategory = await createCategory(CategoryType.INCOME, 'Salary', user.id);
@@ -90,9 +119,31 @@ export const seedData = async () => {
   const mortgageCb = await createCategoryBudget(mortgageCategory, 1000, budget);
   const fundCb = await createCategoryBudget(fundCategory, 800, budget);
 
+  const salaryCb2 = await createCategoryBudget(salaryCategory, 3500, budget2);
+  const foodCb2 = await createCategoryBudget(foodCategory, 400, budget2);
+  const mortgageCb2 = await createCategoryBudget(mortgageCategory, 1500, budget2);
+  const fundCb2 = await createCategoryBudget(fundCategory, 200, budget2);
+
+  const salaryCb3 = await createCategoryBudget(salaryCategory, 3200, budget3);
+  const foodCb3 = await createCategoryBudget(foodCategory, 300, budget3);
+  const mortgageCb3 = await createCategoryBudget(mortgageCategory, 1100, budget3);
+  const fundCb3 = await createCategoryBudget(fundCategory, 350, budget3);
+
   console.log(consolePrefix, 'Creating transactions');
   await createTransaction(4000, new Date('2024-6-1'), salaryCb, user);
   await createTransaction(200, new Date('2024-6-5'), foodCb, user);
   await createTransaction(1000, new Date('2024-6-2'), mortgageCb, user);
   await createTransaction(200, new Date('2024-6-6'), fundCb, user);
+
+  await createTransaction(2000, new Date('2024-6-1'), salaryCb2, user);
+  await createTransaction(100, new Date('2024-6-5'), foodCb2, user);
+  await createTransaction(200, new Date('2024-6-2'), mortgageCb2, user);
+  await createTransaction(100, new Date('2024-6-6'), fundCb2, user);
+
+  await createTransaction(2000, new Date('2024-6-1'), salaryCb3, user);
+  await createTransaction(100, new Date('2024-6-5'), foodCb3, user);
+  await createTransaction(200, new Date('2024-6-2'), mortgageCb3, user);
+  await createTransaction(100, new Date('2024-6-6'), fundCb3, user);
+
+  console.log(consolePrefix, 'Data Seeding Completed');
 };

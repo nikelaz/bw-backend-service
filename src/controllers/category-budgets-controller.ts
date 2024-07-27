@@ -33,7 +33,7 @@ export const categoryBudgetsController: FastifyPluginCallback = (server, undefin
   }>('/', {
     ...auth(server)
   }, async (req, reply) => {
-    const categoryBudget = CategoryBudget.create<CategoryBudget>(req.body.categoryBudget);
+     const categoryBudget = CategoryBudget.create<CategoryBudget>(req.body.categoryBudget);
 
     if (!req.body.categoryBudget.category.id) {
       const newCategory = Category.create({
@@ -64,6 +64,13 @@ export const categoryBudgetsController: FastifyPluginCallback = (server, undefin
       });
       const newCategory = await category.save();
       categoryId = newCategory.id;
+    }
+
+    if (req.body.categoryBudget.category && req.body.categoryBudget.category.id) {
+        await Category.update(
+        req.body.categoryBudget.category.id,
+        { ...req.body.categoryBudget.category }
+      );
     }
 
     const updateObject: DeepPartial<CategoryBudget> = req.body.categoryBudget;

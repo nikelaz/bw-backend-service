@@ -40,7 +40,10 @@ export class CategoryBudget extends ExtendedBaseEntity {
   @AfterInsert()
   @AfterUpdate()
   generateCurrentAmount(): void {
-    if (!this.transactions) return;
+    if (!this.transactions) {
+      this.currentAmount = 0;
+      return;
+    }
     this.currentAmount = this.transactions.reduce((acc, currValue) => acc + currValue.amount, 0);
   }
 }
