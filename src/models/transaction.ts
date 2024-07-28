@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import ExtendedBaseEntity from './extended-base-entity';
-import { IsDate } from 'class-validator';
+import { IsDate, IsOptional } from 'class-validator';
 import { getIsInvalidMessage } from '../helpers/validation-messages';
 import { CategoryBudget } from './category-budget';
 import { User } from './user';
@@ -9,6 +9,10 @@ import { User } from './user';
 export class Transaction extends ExtendedBaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  title: string;
 
   @Column('double precision')
   amount: number;

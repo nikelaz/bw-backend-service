@@ -1,26 +1,32 @@
 import { FastifyPluginCallback } from 'fastify';
 import { auth } from '../helpers/authenticated';
-import { IBudgetIdParams, IBudgetIdSingleParams, ITransactionBody, ITransactionReply, ITransactionsReply } from './types/transaction.types';
+import { IBudgetIdParams, IBudgetIdSingleParams, IPaginationQuery, ITransactionBody, ITransactionReply, ITransactionsReply } from './types/transaction.types';
 import { Transaction } from '../models/transaction';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
 
 export const transactionsController: FastifyPluginCallback = (server, undefined, done) => {
   server.get<{
     Params: IBudgetIdParams,
-    Reply: ITransactionsReply
+    Reply: ITransactionsReply,
+    Querystring: IPaginationQuery,
   }>('/:budgetId', {
     ...auth(server)
   }, async (req, reply) => {
-    const transactions = await Transaction.find({
+    const [transactions, count] = await Transaction.findAndCount({
       where: {
         categoryBudget: {
           budget: { id: req.params.budgetId }
         },
         user: { id: req.user.id }
       },
-      relations: ['categoryBudget']
+      relations: ['categoryBudget'],
+      take: req.query.limit || null,
+      skip: req.query.offset || null,
+      order: {
+        date: 'DESC',
+      },
     });
-    reply.code(200).send({ transactions });
+    reply.code(200).send({ transactions, count });
   });
 
   server.get<{
@@ -37,7 +43,7 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
         },
         user: { id: req.user.id }
       },
-      relations: ['categoryBudget']
+      relations: ['categoryBudget'],
     });
 
     if (!transaction) throw new Error('Transaction not found.');

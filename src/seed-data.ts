@@ -41,9 +41,11 @@ const createTransaction = async (
   amount: number,
   date: Date,
   categoryBudget: CategoryBudget,
-  user: User
+  user: User,
+  title?: string
 ) => {
   const transaction = Transaction.create<Transaction>({
+    title,
     amount,
     date,
     categoryBudget,
@@ -130,19 +132,19 @@ export const seedData = async () => {
   const fundCb3 = await createCategoryBudget(fundCategory, 350, budget3);
 
   console.log(consolePrefix, 'Creating transactions');
-  await createTransaction(4000, new Date('2024-6-1'), salaryCb, user);
-  await createTransaction(200, new Date('2024-6-5'), foodCb, user);
-  await createTransaction(1000, new Date('2024-6-2'), mortgageCb, user);
+  await createTransaction(4000, new Date('2024-6-1'), salaryCb, user, 'Salary from Job #1');
+  await createTransaction(200, new Date('2024-6-5'), foodCb, user, 'Groceries @ Supermarket');
+  await createTransaction(1000, new Date('2024-6-2'), mortgageCb, user, 'June Mortgage Payment');
   await createTransaction(200, new Date('2024-6-6'), fundCb, user);
 
-  await createTransaction(2000, new Date('2024-6-1'), salaryCb2, user);
-  await createTransaction(100, new Date('2024-6-5'), foodCb2, user);
-  await createTransaction(200, new Date('2024-6-2'), mortgageCb2, user);
-  await createTransaction(100, new Date('2024-6-6'), fundCb2, user);
+  await createTransaction(2000, new Date('2024-6-1'), salaryCb2, user, 'Salary from Job #2');
+  await createTransaction(100, new Date('2024-6-5'), foodCb2, user, 'Food @ Supermarket');
+  await createTransaction(200, new Date('2024-6-2'), mortgageCb2, user, 'July Mortgage Payment');
+  await createTransaction(100, new Date('2024-6-6'), fundCb2, user, 'Emergency Fund Monthly Deposit');
 
-  await createTransaction(2000, new Date('2024-6-1'), salaryCb3, user);
-  await createTransaction(100, new Date('2024-6-5'), foodCb3, user);
-  await createTransaction(200, new Date('2024-6-2'), mortgageCb3, user);
+  await createTransaction(2000, new Date('2024-6-1'), salaryCb3, user, 'Salary from Job #1');
+  await createTransaction(100, new Date('2024-6-5'), foodCb3, user, 'Weekly Shopping');
+  await createTransaction(200, new Date('2024-6-2'), mortgageCb3, user, 'August Mortgage Payment');
   await createTransaction(100, new Date('2024-6-6'), fundCb3, user);
 
   console.log(consolePrefix, 'Data Seeding Completed');
