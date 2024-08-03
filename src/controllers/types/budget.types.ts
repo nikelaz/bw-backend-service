@@ -6,6 +6,15 @@ export interface IBudgetBody {
   }
 }
 
+export interface IBudgetCreateBody {
+  budget: {
+    month: string,
+  },
+  copyFrom: {
+    id: number,
+  },
+}
+
 export interface IBudgetsReply {
   budgets: Partial<Budget>[];
 }

@@ -1,6 +1,7 @@
 import { FastifyPluginCallback } from 'fastify';
 import { auth } from '../helpers/authenticated';
-import { IBudgetBody, IBudgetReply, IBudgetsReply } from './types/budget.types';
+import { IBudgetCreateBody, IBudgetReply, IBudgetsReply } from './types/budget.types';
+import { CategoryBudget } from '../models/category-budget';
 import { Budget } from '../models/budget';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
 
@@ -42,7 +43,7 @@ export const budgetsController: FastifyPluginCallback = (server, undefined, done
   });
 
   server.post<{
-    Body: IBudgetBody
+    Body: IBudgetCreateBody
     Reply: IBudgetReply
   }>('/', {
     ...auth(server)
@@ -55,6 +56,34 @@ export const budgetsController: FastifyPluginCallback = (server, undefined, done
     });
 
     const newBudget = await budget.save();
+
+    const referenceBudget = await Budget.findOne({
+      where: {
+        id: req.body.copyFrom.id,
+        user: { id: req.user.id }
+      },
+      relations: ['categoryBudgets'],
+      order: {
+        month: 'ASC'
+      }
+    });
+
+    if (referenceBudget) {
+      const newCategoryBudgetCreationPromises: Array<Promise<CategoryBudget>> = [];
+
+      referenceBudget.categoryBudgets.forEach((categoryBudget: CategoryBudget) => {
+        const newCategoryBudget = CategoryBudget.create({
+          amount: categoryBudget.amount,
+          category: categoryBudget.category,
+          budget: newBudget,
+        });
+
+        newCategoryBudgetCreationPromises.push(newCategoryBudget.save());
+      });
+
+      await Promise.all(newCategoryBudgetCreationPromises);
+    }
+
     reply.code(200).send({ budget: newBudget });
   });
 
