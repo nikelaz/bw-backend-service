@@ -12,3 +12,8 @@ export interface ILoginReply {
   token: string;
   user: Partial<User>;
 };
+
+export interface IChangePasswordBody {
+  currentPassword: string,
+  newPassword: string,
+};

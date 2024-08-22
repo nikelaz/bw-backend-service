@@ -1,7 +1,7 @@
 import { FastifyPluginCallback } from 'fastify';
 import { User } from '../models/user';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
-import { IUserBody, IUserReply, ILoginReply } from './types/user.types';
+import { IUserBody, IUserReply, ILoginReply, IChangePasswordBody } from './types/user.types';
 import { idParamsSchema, successfulResponseSchema } from './schemas/generic.schemas';
 import { userBodySchema, userResponseSchema, loginResponseSchema } from './schemas/user.schemas';
 import { auth } from '../helpers/authenticated';
@@ -46,9 +46,25 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
       user: {
         id: user.id,
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        currency: user.currency,
       }
     });
+  });
+
+  server.post<{
+    Body: IChangePasswordBody,
+    Reply: ISuccessfulReply
+  }>('/change-password', { ...auth(server) }, async (req, reply) => {
+    const user = await User.findOneBy({ id: req.user.id });
+
+    const isPasswordValid = await user.isPasswordValid(req.body.currentPassword);
+    if (!isPasswordValid) throw new Error('Current password is invalid');
+
+    user.password = req.body.newPassword;
+    await user.save();
+
+    reply.code(200).send({ message: 'Password updated successfully' });
   });
 
   server.put<{
@@ -58,7 +74,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     schema: { ...userBodySchema, ...successfulResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
-    await User.update(req.body.user.id, req.body.user);
+    await User.update(req.user.id, req.body.user);
     reply.code(200).send({ message: 'User updated succesfully' });
   });
 
