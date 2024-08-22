@@ -1,8 +1,8 @@
 FROM node:22-alpine
 WORKDIR /usr/app
-COPY package*.json .
+COPY package*.json ./
 RUN npm install
-COPY . .
+COPY . ./
 RUN npm run build
 EXPOSE 3010
 CMD [ "node", "dist/index.js" ]
