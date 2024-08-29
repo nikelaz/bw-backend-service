@@ -10,8 +10,6 @@ import { CategoryType } from '../models/category';
 import { Budget } from '../models/budget';
 
 const newUserExperience = async (userId: number) => {
-  console.log('new user experience', userId);
-
   // Create budget for the current month
   const budget = Budget.create({
     month: new Date(),
@@ -41,7 +39,7 @@ const newUserExperience = async (userId: number) => {
   const healthAndFitness = await createCategory(CategoryType.EXPENSE, 'Health & Fitness', userId);
   await createCategoryBudget(healthAndFitness, 150, budget);
   const personalCare = await createCategory(CategoryType.EXPENSE, 'Personal Care', userId);
-  await createCategoryBudget(personalCare, 100, budget);
+  await createCategoryBudget(personalCare, 180, budget);
   const funAndEntertainment = await createCategory(CategoryType.EXPENSE, 'Fun & Entertainment', userId);
   await createCategoryBudget(funAndEntertainment, 200, budget);
   const misc = await createCategory(CategoryType.EXPENSE, 'Miscellaneous', userId);
