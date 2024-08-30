@@ -3,6 +3,7 @@ import { auth } from '../helpers/authenticated';
 import { IBudgetIdParams, IBudgetIdSingleParams, IPaginationQuery, ITransactionBody, ITransactionReply, ITransactionsReply } from './types/transaction.types';
 import { Transaction } from '../models/transaction';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
+import { ILike } from 'typeorm';
 
 export const transactionsController: FastifyPluginCallback = (server, undefined, done) => {
   server.get<{
@@ -12,13 +13,32 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
   }>('/:budgetId', {
     ...auth(server)
   }, async (req, reply) => {
-    const [transactions, count] = await Transaction.findAndCount({
-      where: {
-        categoryBudget: {
-          budget: { id: req.params.budgetId }
-        },
-        user: { id: req.user.id }
+    let whereObj: any = {
+      categoryBudget: {
+        budget: { id: req.params.budgetId }
       },
+      user: { id: req.user.id }
+    };
+
+    if (req.query.filter) {
+      whereObj = [
+        {
+          ...whereObj,
+          title: ILike(`%${req.query.filter}%`)
+        },
+        {
+          ...whereObj,
+          categoryBudget: {
+            category: {
+              title: ILike(`%${req.query.filter}%`)
+            }
+          }
+        },
+      ];
+    }
+
+    const [transactions, count] = await Transaction.findAndCount({
+      where: whereObj,
       relations: ['categoryBudget'],
       take: req.query.limit || null,
       skip: req.query.offset || null,
@@ -26,6 +46,7 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
         date: 'DESC',
       },
     });
+
     reply.code(200).send({ transactions, count });
   });
 

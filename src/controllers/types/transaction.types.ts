@@ -8,6 +8,7 @@ export interface IBudgetIdParams {
 export interface IPaginationQuery {
   limit?: number;
   offset?: number;
+  filter?: string;
 }
 
 export interface IBudgetIdSingleParams {
