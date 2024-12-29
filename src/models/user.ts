@@ -15,6 +15,7 @@ import { Category } from './category';
 import ExtendedBaseEntity from './extended-base-entity';
 import { Budget } from './budget';
 import { Transaction } from './transaction';
+import CRMOperations from '../helpers/crm-ops';
 
 @Entity()
 @Unique(['email'])
@@ -69,6 +70,12 @@ export class User extends ExtendedBaseEntity {
     if (this.cachedPassword === this.password) return;
     const salt = await bcrypt.genSalt();
     this.password = await bcrypt.hash(this.password, salt);
+  }
+
+  @BeforeInsert()
+  async createCRMContact() {
+    const crmContactId = await CRMOperations.createCRMContact(this);
+    CRMOperations.addCRMContactToUsersList(crmContactId);
   }
 
   async isPasswordValid(inputPassword: string): Promise<boolean> {
