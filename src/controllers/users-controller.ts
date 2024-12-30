@@ -101,6 +101,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
         firstName: user.firstName,
         lastName: user.lastName,
         currency: user.currency,
+        country: user.country,
       }
     });
   });

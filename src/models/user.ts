@@ -41,6 +41,10 @@ export class User extends ExtendedBaseEntity {
   @Length(1, 50, { message: getIsInvalidMessage('Last Name') })
   lastName: string;
 
+  @Column({ nullable: true })
+  @IsOptional()
+  country: string;
+
   @Column({ default: 'USD' })
   @Length(3, 3, { message: getIsInvalidMessage('Currency') })
   @IsOptional()
