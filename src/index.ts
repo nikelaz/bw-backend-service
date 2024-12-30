@@ -34,6 +34,7 @@ class Application {
     this.server.register(cors, {
       origin: true,
     });
+
     this.server.register(auth);
   }
 

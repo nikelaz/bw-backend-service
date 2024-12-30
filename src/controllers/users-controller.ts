@@ -59,7 +59,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Params: IIdParams,
     Reply: IUserReply
   }>('/:id', {
-    schema: { ...idParamsSchema, ...userResponseSchema },
+    // schema: { ...idParamsSchema, ...userResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
     const user = await User.findOneBy({ id: req.params.id });
@@ -70,7 +70,9 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
   server.post<{
     Body: IUserBody,
     Reply: IUserReply
-  }>('/', { schema: { ...userBodySchema, ...userResponseSchema } }, async (req, reply) => {
+  }>('/',
+    // { schema: { ...userBodySchema, ...userResponseSchema } },
+    async (req, reply) => {
     const user = User.create<User>(req.body.user);
     const newUser = await user.save();
     await newUserExperience(newUser.id);
@@ -80,7 +82,9 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
   server.post<{
     Body: IUserBody,
     Reply: ILoginReply
-  }>('/login', { schema: { ...userBodySchema, ...loginResponseSchema } }, async (req, reply) => {
+  }>('/login',
+    // { schema: { ...userBodySchema, ...loginResponseSchema } },
+    async (req, reply) => {
     const invalidCredentialsError = 'The provided user details are invalid';
 
     const user = await User.findOneBy({ email: req.body.user.email });
@@ -120,7 +124,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Body: IUserBody,
     Reply: ISuccessfulReply
   }>('/', {
-    schema: { ...userBodySchema, ...successfulResponseSchema },
+    // schema: { ...userBodySchema, ...successfulResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
     await User.update(req.user.id, req.body.user);
@@ -131,7 +135,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Params: IIdParams,
     Reply: ISuccessfulReply
   }>('/:id', {
-    schema: { ...idParamsSchema, ...successfulResponseSchema },
+    // schema: { ...idParamsSchema, ...successfulResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
     await User.delete(req.params.id);
