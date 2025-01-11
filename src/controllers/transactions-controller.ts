@@ -96,6 +96,7 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
   }>('/', {
     ...auth(server)
   }, async (req, reply) => {
+    console.log('transaction update object', req.body.transaction);
     await Transaction.update({
       id: req.body.transaction.id,
       user: { id: req.user.id }

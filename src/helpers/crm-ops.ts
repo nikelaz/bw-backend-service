@@ -27,13 +27,27 @@ class CRMOperations {
       last_web_app_activity: Date.now().toString(),
     };
 
-    const contactCreateResponse = await hubspotClient.crm.contacts.basicApi.create({ properties });
+    let contactCreateResponse;
+
+    try {
+      contactCreateResponse = await hubspotClient.crm.contacts.basicApi.create({ properties });
+    } catch (error) {
+      console.log('hubspot api error: could not create CRM contact');
+    }
+
+    if (!contactCreateResponse) {
+      return null;
+    }
 
     return contactCreateResponse.id;
   }
 
   static async addCRMContactToUsersList(crmContactId: string) {
-    await hubspotClient.crm.lists.membershipsApi.add(appUsersListId, [crmContactId]);
+    try {
+      await hubspotClient.crm.lists.membershipsApi.add(appUsersListId, [crmContactId]);
+    } catch (error) {
+      console.log('hubspot api error: could not add CRM contact to users list');
+    }
   }
 
   static async updateActivityDate(userEmail: string) {
@@ -43,22 +57,32 @@ class CRMOperations {
   
     if (lastActivityDate === datestamp) return;
 
-    const contactSearchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
-      query: userEmail,
-      properties: ['email'],
-    });
+    let contactSearchResponse;
 
-    if (!contactSearchResponse.results || contactSearchResponse.results.length === 0) return;
+    try {
+      contactSearchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
+        query: userEmail,
+        properties: ['email'],
+      });
+    } catch (error) {
+      console.log('hubspot api error: could not find user to update activity date');
+    }
+
+    if (!contactSearchResponse || !contactSearchResponse.results || contactSearchResponse.results.length === 0) return;
 
     const contactId = contactSearchResponse.results[0].id;
 
     if (!contactId) return;
 
-    await hubspotClient.crm.contacts.basicApi.update(contactId, {
-      properties: {
-        last_web_app_activity: Date.now().toString(),
-      },
-    });
+    try {
+      await hubspotClient.crm.contacts.basicApi.update(contactId, {
+        properties: {
+          last_web_app_activity: Date.now().toString(),
+        },
+      });
+    } catch (error) {
+      console.log('hubspot api error: could not update last web app activity of found user');
+    }
 
     activityCache.set(userEmail, datestamp);
   }
