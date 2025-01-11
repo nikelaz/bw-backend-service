@@ -29,6 +29,7 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
         {
           ...whereObj,
           categoryBudget: {
+            budget: { id: req.params.budgetId },
             category: {
               title: ILike(`%${req.query.filter}%`)
             }
@@ -96,7 +97,6 @@ export const transactionsController: FastifyPluginCallback = (server, undefined,
   }>('/', {
     ...auth(server)
   }, async (req, reply) => {
-    console.log('transaction update object', req.body.transaction);
     await Transaction.update({
       id: req.body.transaction.id,
       user: { id: req.user.id }
