@@ -2,12 +2,13 @@ import { FastifyPluginCallback } from 'fastify';
 import { User } from '../models/user';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
 import { IUserBody, IUserReply, ILoginReply, IChangePasswordBody } from './types/user.types';
-import { idParamsSchema, successfulResponseSchema } from './schemas/generic.schemas';
-import { userBodySchema, userResponseSchema, loginResponseSchema } from './schemas/user.schemas';
 import { auth } from '../helpers/authenticated';
 import { createCategory, createCategoryBudget } from '../helpers/seeding-shortcuts';
 import { CategoryType } from '../models/category';
 import { Budget } from '../models/budget';
+import { Transaction } from '../models/transaction';
+import { CategoryBudget } from '../models/category-budget';
+import { Category } from '../models/category';
 
 const newUserExperience = async (userId: number) => {
   // Create budget for the current month
@@ -59,9 +60,9 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Params: IIdParams,
     Reply: IUserReply
   }>('/:id', {
-    // schema: { ...idParamsSchema, ...userResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
+    if (parseInt(req.user.id.toString()) !== parseInt(req.params.id.toString())) throw new Error('Unauthorized');
     const user = await User.findOneBy({ id: req.params.id });
     if (!user) throw new Error('User not found');
     reply.code(200).send({ user });
@@ -71,7 +72,6 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Body: IUserBody,
     Reply: IUserReply
   }>('/',
-    // { schema: { ...userBodySchema, ...userResponseSchema } },
     async (req, reply) => {
     const user = User.create<User>(req.body.user);
     const newUser = await user.save();
@@ -83,7 +83,6 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Body: IUserBody,
     Reply: ILoginReply
   }>('/login',
-    // { schema: { ...userBodySchema, ...loginResponseSchema } },
     async (req, reply) => {
     const invalidCredentialsError = 'The provided user details are invalid';
 
@@ -125,7 +124,6 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Body: IUserBody,
     Reply: ISuccessfulReply
   }>('/', {
-    // schema: { ...userBodySchema, ...successfulResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
     await User.update(req.user.id, req.body.user);
@@ -136,9 +134,21 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     Params: IIdParams,
     Reply: ISuccessfulReply
   }>('/:id', {
-    // schema: { ...idParamsSchema, ...successfulResponseSchema },
     ...auth(server)
   }, async (req, reply) => {
+    if (parseInt(req.user.id.toString()) !== parseInt(req.params.id.toString())) throw new Error('Unauthorized');
+
+    await Transaction.delete({ user: { id: req.params.id } });
+
+    const budgets = await Budget.findBy({ user: { id: req.params.id } });
+
+    budgets.forEach(async (budget) => {
+      CategoryBudget.delete({ budget: budget });
+    });
+
+    Budget.delete({ user: { id: req.params.id } });
+    Category.delete({ user: { id: req.params.id } });
+
     await User.delete(req.params.id);
     reply.code(200).send({ message: 'User deleted succesfully' });
   });
