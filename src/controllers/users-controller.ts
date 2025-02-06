@@ -142,12 +142,12 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
 
     const budgets = await Budget.findBy({ user: { id: req.params.id } });
 
-    budgets.forEach(async (budget) => {
-      CategoryBudget.delete({ budget: budget });
-    });
+    await Promise.all(budgets.map(async (budget) => {
+      await CategoryBudget.delete({ budget: budget });
+    }));
 
-    Budget.delete({ user: { id: req.params.id } });
-    Category.delete({ user: { id: req.params.id } });
+    await Budget.delete({ user: { id: req.params.id } });
+    await Category.delete({ user: { id: req.params.id } });
 
     await User.delete(req.params.id);
     reply.code(200).send({ message: 'User deleted succesfully' });
