@@ -28,8 +28,8 @@ export class User extends ExtendedBaseEntity {
   email: string;
 
   @Column()
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, {
-    message: `${getIsInvalidMessage('Password')}. Use a password with at least 8 symbols, including letters and digits.`
+  @Matches(/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/, {
+    message: `${getIsInvalidMessage('Password')}. Use a password with at least 8 symbols, that includes at least 1 letter and a digit.`
   })
   password: string;
 

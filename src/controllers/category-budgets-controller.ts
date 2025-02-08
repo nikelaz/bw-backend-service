@@ -5,6 +5,7 @@ import { ICategoryBudget } from './types/category-budgets.types';
 import { CategoryBudget } from '../models/category-budget';
 import { Category } from '../models/category';
 import { DeepPartial } from 'typeorm';
+import { Transaction } from '../models/transaction';
 
 export const categoryBudgetsController: FastifyPluginCallback = (server, undefined, done) => {
   server.get<{
@@ -102,6 +103,7 @@ export const categoryBudgetsController: FastifyPluginCallback = (server, undefin
     
     if (!categoryBudget) throw new Error('Category budget not found.');
 
+    await Transaction.delete({ user: { id: req.user.id }, categoryBudget: { id: req.params.id } });
     await categoryBudget.remove();
 
     reply.code(200).send({ message: 'Category budget deleted successfully' });
