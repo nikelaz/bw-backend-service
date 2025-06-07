@@ -30,7 +30,8 @@ export class CategoryBudget extends ExtendedBaseEntity {
   budget: Budget;
 
   @OneToMany(() => Transaction, (transaction) => transaction.categoryBudget, {
-    eager: true
+    eager: true,
+    onDelete: 'CASCADE'
   })
   transactions: Transaction[];
 

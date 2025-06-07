@@ -20,7 +20,9 @@ export class Budget extends ExtendedBaseEntity {
   @IsDate({ message: getIsInvalidMessage('Month') })
   month: Date;
 
-  @OneToMany(() => CategoryBudget, (categoryBudget) => categoryBudget.budget)
+  @OneToMany(() => CategoryBudget, (categoryBudget) => categoryBudget.budget, {
+    onDelete: 'CASCADE'
+  })
   categoryBudgets: CategoryBudget[];
 
   @ManyToOne(() => User, (user) => user.budgets)
