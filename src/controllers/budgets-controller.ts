@@ -3,6 +3,7 @@ import { auth } from '../helpers/authenticated';
 import { IBudgetCreateBody, IBudgetReply, IBudgetsReply } from './types/budget.types';
 import { CategoryBudget } from '../models/category-budget';
 import { Budget } from '../models/budget';
+import { Transaction } from '../models/transaction';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
 
 export const budgetsController: FastifyPluginCallback = (server, undefined, done) => {
@@ -86,21 +87,44 @@ export const budgetsController: FastifyPluginCallback = (server, undefined, done
 
     reply.code(200).send({ budget: newBudget });
   });
-
   server.delete<{
     Params: IIdParams
     Reply: ISuccessfulReply
   }>('/:id', {
     ...auth(server)
   }, async (req, reply) => {
+    const categoryBudgets = await CategoryBudget.find({
+      where: {
+        budget: { id: req.params.id },
+      },
+      relations: ['transactions'],
+    });
+
+    // Delete all transactions related to each category budget
+    await Promise.all(
+      categoryBudgets.map(async (categoryBudget) => {
+        if (categoryBudget.transactions && categoryBudget.transactions.length > 0) {
+          await Transaction.delete({
+            categoryBudget: { id: categoryBudget.id },
+          });
+        }
+      })
+    );
+
+    // Delete all category budgets related to the budget
+    await CategoryBudget.delete({
+      budget: { id: req.params.id },
+    });
+
+    // Delete the budget itself
     await Budget.delete({
       id: req.params.id,
       user: {
-        id: req.user.id
-      }
+        id: req.user.id,
+      },
     });
-    reply.code(200).send({ message: 'Budget deleted successfully' });
-  });
 
+    reply.code(200).send({ message: 'Budget and related data deleted successfully' });
+  });
   done();
 };
