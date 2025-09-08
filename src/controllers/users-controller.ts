@@ -10,7 +10,16 @@ import { Transaction } from '../models/transaction';
 import { CategoryBudget } from '../models/category-budget';
 import { Category } from '../models/category';
 import { OAuth2Client } from 'google-auth-library';
-const client = new OAuth2Client('158086281084-mu2rkruhk9ak2qda8tcq5mjmvs16are8.apps.googleusercontent.com');
+import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
+
+const APPLE_ISSUER = "https://appleid.apple.com";
+const APP_CLIENT_ID = "com.lazarovco.budgetwarden";
+
+const googleOAuthClient = new OAuth2Client('158086281084-2ukh2g8718rf8r6k5honmkh8djem26bp.apps.googleusercontent.com');
+const appleJwksClient = jwksClient({
+  jwksUri: "https://appleid.apple.com/auth/keys",
+});
 
 const newUserExperience = async (userId: number) => {
   // Create budget for the current month
@@ -58,12 +67,38 @@ const newUserExperience = async (userId: number) => {
 }
 
 async function verifyGoogleToken(token: string) {
-  const ticket = await client.verifyIdToken({
+  const ticket = await googleOAuthClient.verifyIdToken({
     idToken: token,
-    audience: '158086281084-mu2rkruhk9ak2qda8tcq5mjmvs16are8.apps.googleusercontent.com',
+    audience: '158086281084-2ukh2g8718rf8r6k5honmkh8djem26bp.apps.googleusercontent.com',
   });
   const payload = ticket.getPayload();
   return payload;
+}
+
+function getAppleKey(header: any, callback: any) {
+  appleJwksClient.getSigningKey(header.kid, function (err: any, key: any) {
+    if (err) return callback(err);
+    const signingKey = key.getPublicKey();
+    callback(null, signingKey);
+  });
+}
+
+async function verifyAppleToken(token: string) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      token,
+      getAppleKey,
+      {
+        algorithms: ['RS256'],
+        issuer: APPLE_ISSUER,
+        audience: APP_CLIENT_ID,
+      },
+      (err: any, decoded: any) => {
+        if (err) return reject(err);
+        resolve(decoded);
+      }
+    );
+  });
 }
 
 export const usersController: FastifyPluginCallback = (server, undefined, done) => {
@@ -82,8 +117,10 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
   server.post<{
     Body: IUserBody,
     Reply: IUserReply
-  }>('/',
-    async (req, reply) => {
+  }>('/', async (req, reply) => {
+    if (!req.body.user.password && !req.body.user.oAuthProvider) {
+      throw new Error('Invalid password. Use a password with at least 8 symbols, that includes at least 1 letter and a digit.');
+    }
     const user = User.create<User>(req.body.user);
     const newUser = await user.save();
     await newUserExperience(newUser.id);
@@ -127,32 +164,57 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
         throw new Error('The oAuthProvider value is required and should be 1 for Google or 2 for Apple.');
       }
 
-      let credentials;
+      let credentials: any, id, email, firstName, lastName;
 
-      try {
-        credentials = await verifyGoogleToken(req.body.token);
+      if (oAuthProvider === OAuthProvider.GOOGLE) {
+          try {
+            credentials = await verifyGoogleToken(req.body.token);
+          }
+          catch(error) {
+            console.log('error', error);
+            throw new Error('Your login session is invalid or has expired. Please sign in with Google again.');
+          }
+
+          id = credentials.sub;
+          email = credentials.email;
+          firstName = credentials.given_name;
+          lastName = credentials.family_name;
+
+          if (!id || !email || !firstName || !lastName) {
+            throw new Error('Unable to retrieve required account information (email, first name, or last name) from Google. Please check your Google account settings and try again.'); 
+          }
       }
-      catch(error) {
-        throw new Error('Your login session is invalid or has expired. Please sign in with Google again.');
+
+      if (oAuthProvider === OAuthProvider.APPLE) {
+          try {
+            credentials = await verifyAppleToken(req.body.token);
+          }
+          catch(error) {
+            throw new Error('Your login session is invalid or has expired. Please sign in with Apple again.');
+          }
+
+          id = credentials?.sub;
+          email = credentials?.email;
+          firstName = req.body.firstName;
+          lastName = req.body.lastName;
+
+          if (!id || !email) {
+            throw new Error('Unable to retrieve required account information from Apple. Please check your Apple account settings and try again.'); 
+          }
       }
 
-      const id = credentials.sub;
-      const email = credentials.email;
-      const firstName = credentials.given_name;
-      const lastName = credentials.family_name;
-
-      if (!id || !email || !firstName || !lastName) {
-        throw new Error('Unable to retrieve required account information (email, first name, or last name) from Google. Please check your Google account settings and try again.'); 
-      }
-
-      let user = await User.findOneBy({ email: email, oAuthProvider: OAuthProvider.GOOGLE });
+      let user = await User.findOneBy({ email: email, oAuthProvider });
 
       if (!user) {
+        if (!firstName || !lastName) {
+          throw new Error('Unable to retrieve required account information from Apple (first and last name). Please try again.');
+        }
+
         user = User.create<User>({
           email,
           firstName,
           lastName,
-          oAuthProvider: OAuthProvider.GOOGLE,
+          oAuthProvider,
           oAuthId: id,
         });
         const newUser = await user.save();
@@ -168,6 +230,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
           lastName: user.lastName,
           currency: user.currency,
           country: user.country,
+          oAuthProvider: user.oAuthProvider,
         }
       });
   });

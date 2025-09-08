@@ -21,4 +21,6 @@ export interface IChangePasswordBody {
 export interface IOAuthToken {
   token: string;
   oAuthProvider: number;
+  firstName: string;
+  lastName: string;
 }
