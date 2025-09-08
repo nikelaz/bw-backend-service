@@ -17,3 +17,8 @@ export interface IChangePasswordBody {
   currentPassword: string,
   newPassword: string,
 };
+
+export interface IOAuthToken {
+  token: string;
+  oAuthProvider: number;
+}

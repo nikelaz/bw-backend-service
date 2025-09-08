@@ -1,7 +1,7 @@
 import { FastifyPluginCallback } from 'fastify';
-import { User } from '../models/user';
+import { User, OAuthProvider } from '../models/user';
 import { IIdParams, ISuccessfulReply } from './types/generic.types';
-import { IUserBody, IUserReply, ILoginReply, IChangePasswordBody } from './types/user.types';
+import { IUserBody, IUserReply, ILoginReply, IChangePasswordBody, IOAuthToken } from './types/user.types';
 import { auth } from '../helpers/authenticated';
 import { createCategory, createCategoryBudget } from '../helpers/seeding-shortcuts';
 import { CategoryType } from '../models/category';
@@ -9,6 +9,8 @@ import { Budget } from '../models/budget';
 import { Transaction } from '../models/transaction';
 import { CategoryBudget } from '../models/category-budget';
 import { Category } from '../models/category';
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client('158086281084-mu2rkruhk9ak2qda8tcq5mjmvs16are8.apps.googleusercontent.com');
 
 const newUserExperience = async (userId: number) => {
   // Create budget for the current month
@@ -53,6 +55,15 @@ const newUserExperience = async (userId: number) => {
   await createCategoryBudget(emergencyFund, 500, budget);
   const retirement = await createCategory(CategoryType.SAVINGS, 'Retirement', userId, 50000);
   await createCategoryBudget(retirement, 720, budget);
+}
+
+async function verifyGoogleToken(token: string) {
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: '158086281084-mu2rkruhk9ak2qda8tcq5mjmvs16are8.apps.googleusercontent.com',
+  });
+  const payload = ticket.getPayload();
+  return payload;
 }
 
 export const usersController: FastifyPluginCallback = (server, undefined, done) => {
@@ -103,6 +114,62 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
         country: user.country,
       }
     });
+  });
+
+  server.post<{
+    Body: IOAuthToken,
+    Reply: ILoginReply
+  }>('/oauth',
+    async (req, reply) => {
+      const oAuthProvider = req.body.oAuthProvider;
+
+      if (oAuthProvider !== OAuthProvider.GOOGLE && oAuthProvider !== OAuthProvider.APPLE) {
+        throw new Error('The oAuthProvider value is required and should be 1 for Google or 2 for Apple.');
+      }
+
+      let credentials;
+
+      try {
+        credentials = await verifyGoogleToken(req.body.token);
+      }
+      catch(error) {
+        throw new Error('Your login session is invalid or has expired. Please sign in with Google again.');
+      }
+
+      const id = credentials.sub;
+      const email = credentials.email;
+      const firstName = credentials.given_name;
+      const lastName = credentials.family_name;
+
+      if (!id || !email || !firstName || !lastName) {
+        throw new Error('Unable to retrieve required account information (email, first name, or last name) from Google. Please check your Google account settings and try again.'); 
+      }
+
+      let user = await User.findOneBy({ email: email, oAuthProvider: OAuthProvider.GOOGLE });
+
+      if (!user) {
+        user = User.create<User>({
+          email,
+          firstName,
+          lastName,
+          oAuthProvider: OAuthProvider.GOOGLE,
+          oAuthId: id,
+        });
+        const newUser = await user.save();
+        await newUserExperience(newUser.id);
+      }
+
+      const token = server.jwt.sign({ ...user });
+      reply.code(200).send({
+        token,
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          currency: user.currency,
+          country: user.country,
+        }
+      });
   });
 
   server.post<{

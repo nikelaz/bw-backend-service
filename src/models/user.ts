@@ -1,14 +1,13 @@
-import {
-  Entity,
+import { Entity,
   PrimaryGeneratedColumn,
   Column,
   Unique,
   BeforeInsert,
   BeforeUpdate,
   AfterLoad,
-  OneToMany
+  OneToMany,
 } from 'typeorm';
-import { IsEmail, Matches, Length, IsOptional } from 'class-validator';
+import { IsEmail, Matches, Length, IsOptional, IsEnum } from 'class-validator';
 import { getIsInvalidMessage } from '../helpers/validation-messages';
 import * as bcrypt from 'bcrypt';
 import { Category } from './category';
@@ -16,6 +15,11 @@ import ExtendedBaseEntity from './extended-base-entity';
 import { Budget } from './budget';
 import { Transaction } from './transaction';
 import CRMOperations from '../helpers/crm-ops';
+
+export enum OAuthProvider {
+  GOOGLE = 1,
+  APPLE = 2,
+};
 
 @Entity()
 @Unique(['email'])
@@ -27,10 +31,11 @@ export class User extends ExtendedBaseEntity {
   @IsEmail(undefined, { message: getIsInvalidMessage('Email') })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Matches(/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/, {
     message: `${getIsInvalidMessage('Password')}. Use a password with at least 8 symbols, that includes at least 1 letter and a digit.`
   })
+  @IsOptional()
   password: string;
 
   @Column()
@@ -50,6 +55,19 @@ export class User extends ExtendedBaseEntity {
   @IsOptional()
   currency: string;
 
+  @Column({
+    type: 'enum',
+    enum: OAuthProvider,
+    nullable: true,
+  })
+  @IsEnum(OAuthProvider, { message: getIsInvalidMessage('Type') })
+  @IsOptional()
+  oAuthProvider: OAuthProvider;
+
+  @Column({ nullable: true })
+  @IsOptional()
+  oAuthId: string;
+
   @OneToMany(() => Category, (category) => category.user)
   categories: Category[];
 
@@ -65,12 +83,14 @@ export class User extends ExtendedBaseEntity {
 
   @AfterLoad()
   cachePassword() {
+    if (!this.password) return;
     this.cachedPassword = this.password;
   }
 
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
+    if (!this.password) return;
     if (this.cachedPassword === this.password) return;
     const salt = await bcrypt.genSalt();
     this.password = await bcrypt.hash(this.password, salt);
