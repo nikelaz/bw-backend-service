@@ -1,6 +1,6 @@
+// TODO: Rewrite this to connect to the new BW CRM
 import * as hubspot from '@hubspot/api-client';
 import { User } from '../models/user';
-import { FastifyReply } from 'fastify/types/reply';
 
 const hubspotClient = new hubspot.Client({
   accessToken: process.env.HUBSPOT_ACCESS_TOKEN

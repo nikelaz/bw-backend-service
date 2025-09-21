@@ -26,7 +26,7 @@ const authPlugin: FastifyPluginCallback = (server, undefined, done) => {
     try {
       await req.jwtVerify();
 
-      CRMOperations.updateActivityDate(req.user.email);
+      //CRMOperations.updateActivityDate(req.user.email);
     } catch (error) {
       reply.send(error);
     }

@@ -93,12 +93,26 @@ export const budgetsController: FastifyPluginCallback = (server, undefined, done
   }>('/:id', {
     ...auth(server)
   }, async (req, reply) => {
-    const categoryBudgets = await CategoryBudget.find({
+    const allBudgets = await Budget.find({
       where: {
-        budget: { id: req.params.id },
+        user: {
+          id: req.user.id,
+        }
       },
-      relations: ['transactions'],
     });
+
+    if (allBudgets.length < 2) {
+      throw new Error("You are trying to delete your only budget. A user must always have at least one budget.");
+    }
+
+    const categoryBudgets = await CategoryBudget
+      .createQueryBuilder('categoryBudget')
+      .leftJoinAndSelect('categoryBudget.transactions', 'transaction')
+      .leftJoinAndSelect('categoryBudget.budget', 'budget')
+      .leftJoinAndSelect('budget.user', 'user')
+      .where('budget.id = :budgetId', { budgetId: req.params.id })
+      .andWhere('user.id = :userId', { userId: req.user.id })
+      .getMany();
 
     // Delete all transactions related to each category budget
     await Promise.all(

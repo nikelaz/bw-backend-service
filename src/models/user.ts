@@ -98,8 +98,8 @@ export class User extends ExtendedBaseEntity {
 
   @BeforeInsert()
   async createCRMContact() {
-    const crmContactId = await CRMOperations.createCRMContact(this);
-    CRMOperations.addCRMContactToUsersList(crmContactId);
+    //const crmContactId = await CRMOperations.createCRMContact(this);
+    //CRMOperations.addCRMContactToUsersList(crmContactId);
   }
 
   async isPasswordValid(inputPassword: string): Promise<boolean> {
