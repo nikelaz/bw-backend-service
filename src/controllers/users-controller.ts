@@ -114,6 +114,10 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     reply.code(200).send({ user });
   });
 
+  server.get('/apple/auth', async (_, reply) => {
+    reply.code(200).send('OK');
+  });
+
   server.post<{
     Body: IUserBody,
     Reply: IUserReply
