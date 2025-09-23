@@ -23,4 +23,5 @@ export interface IOAuthToken {
   oAuthProvider: number;
   firstName: string;
   lastName: string;
+  platform?: string;
 }

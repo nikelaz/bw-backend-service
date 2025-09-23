@@ -13,8 +13,9 @@ import { OAuth2Client } from 'google-auth-library';
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
-const APPLE_ISSUER = "https://appleid.apple.com";
-const APP_CLIENT_ID = "com.lazarovco.budgetwarden";
+const APPLE_ISSUER = 'https://appleid.apple.com';
+const APP_CLIENT_ID = 'com.lazarovco.budgetwarden';
+const WEB_APP_CLIENT_ID = 'com.budgetwarden.app';
 
 const googleOAuthClient = new OAuth2Client('158086281084-2ukh2g8718rf8r6k5honmkh8djem26bp.apps.googleusercontent.com');
 const appleJwksClient = jwksClient({
@@ -83,7 +84,9 @@ function getAppleKey(header: any, callback: any) {
   });
 }
 
-async function verifyAppleToken(token: string) {
+async function verifyAppleToken(token: string, platform?: string) {
+  const audience = platform === 'web' ? WEB_APP_CLIENT_ID : APP_CLIENT_ID;
+
   return new Promise((resolve, reject) => {
     jwt.verify(
       token,
@@ -91,7 +94,7 @@ async function verifyAppleToken(token: string) {
       {
         algorithms: ['RS256'],
         issuer: APPLE_ISSUER,
-        audience: APP_CLIENT_ID,
+        audience,
       },
       (err: any, decoded: any) => {
         if (err) return reject(err);
@@ -112,10 +115,6 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
     const user = await User.findOneBy({ id: req.params.id });
     if (!user) throw new Error('User not found');
     reply.code(200).send({ user });
-  });
-
-  server.get('/apple/auth', async (_, reply) => {
-    reply.code(200).send('OK');
   });
 
   server.post<{
@@ -191,7 +190,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
 
       if (oAuthProvider === OAuthProvider.APPLE) {
           try {
-            credentials = await verifyAppleToken(req.body.token);
+            credentials = await verifyAppleToken(req.body.token, req.body.platform);
           }
           catch(error) {
             throw new Error('Your login session is invalid or has expired. Please sign in with Apple again.');
