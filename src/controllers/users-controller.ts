@@ -77,7 +77,9 @@ async function verifyGoogleToken(token: string) {
 }
 
 function getAppleKey(header: any, callback: any) {
+  console.log('header', header);
   appleJwksClient.getSigningKey(header.kid, function (err: any, key: any) {
+    console.log('key', key);
     if (err) return callback(err);
     const signingKey = key.getPublicKey();
     callback(null, signingKey);
@@ -86,6 +88,9 @@ function getAppleKey(header: any, callback: any) {
 
 async function verifyAppleToken(token: string, platform?: string) {
   const audience = platform === 'web' ? WEB_APP_CLIENT_ID : APP_CLIENT_ID;
+
+  console.log('token', token);
+  console.log('audience', audience);
 
   return new Promise((resolve, reject) => {
     jwt.verify(
