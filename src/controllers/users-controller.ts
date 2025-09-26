@@ -215,7 +215,7 @@ export const usersController: FastifyPluginCallback = (server, undefined, done) 
 
       if (!user) {
         if (!firstName || !lastName) {
-          throw new Error('Unable to retrieve required account information from Apple (first and last name). Please try again.');
+            throw new Error('Unable to retrieve required account information from Apple (first and last name). Please try again.');
         }
 
         user = User.create<User>({
