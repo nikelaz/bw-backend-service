@@ -1,7 +1,7 @@
-name: Build & Publish Image 
+name: Build & Publish - Production
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: {} # allows manual trigger
 
 permissions:
   contents: read
@@ -9,8 +9,9 @@ permissions:
 
 jobs:
   build:
-    name: Build
+    name: Build & Push Production Image
     runs-on: ubuntu-latest
+    environment: production # requires approval if set in repo
 
     steps:
       - name: Checkout code
@@ -23,24 +24,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set image tag based on branch
+      - name: Set image tag
         id: vars
         run: |
           echo "sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
-          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
-            echo "branch_tag=production" >> $GITHUB_OUTPUT
-          else
-            echo "branch_tag=staging" >> $GITHUB_OUTPUT
-          fi
+          echo "branch_tag=production" >> $GITHUB_OUTPUT
 
-      - name: Build image
+      - name: Build Docker image
         run: |
           IMAGE=ghcr.io/nikelaz/bw-backend-service
           docker build -t $IMAGE:${{ steps.vars.outputs.sha }} -f Dockerfile.prod .
-          docker tag $IMAGE:${{ steps.vars.outputs.sha }} $IMAGE:${{ steps.vars.outputs.branch_tag }}
+          docker tag $IMAGE:${{ steps.vars.outputs.sha }} $IMAGE:production
 
-      - name: Push images
+      - name: Push Docker images
         run: |
           IMAGE=ghcr.io/nikelaz/bw-backend-service
           docker push $IMAGE:${{ steps.vars.outputs.sha }}
-          docker push $IMAGE:${{ steps.vars.outputs.branch_tag }}
+          docker push $IMAGE:production

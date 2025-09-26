@@ -1,0 +1,43 @@
+name: Build & Publish - Production
+
+on:
+  workflow_dispatch: {} # allows manual trigger
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build & Push Production Image
+    runs-on: ubuntu-latest
+    environment: production # requires approval if set in repo
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image tag
+        id: vars
+        run: |
+          echo "sha=${GITHUB_SHA}" >> $GITHUB_OUTPUT
+          echo "branch_tag=production" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        run: |
+          IMAGE=ghcr.io/nikelaz/bw-web-client
+          docker build -t $IMAGE:${{ steps.vars.outputs.sha }} -f Dockerfile.prod .
+          docker tag $IMAGE:${{ steps.vars.outputs.sha }} $IMAGE:production
+
+      - name: Push Docker images
+        run: |
+          IMAGE=ghcr.io/nikelaz/bw-web-client
+          docker push $IMAGE:${{ steps.vars.outputs.sha }}
+          docker push $IMAGE:production
